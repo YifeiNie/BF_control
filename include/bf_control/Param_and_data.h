@@ -4,13 +4,13 @@
 
 
 struct Gain{
-    float Kp_x, Kp_y, Kp_z;
-    float Ki_x, Ki_y, Ki_z;
-    float Kd_x, Kd_y, Kd_z;
+    double Kp_x, Kp_y, Kp_z;
+    double Ki_x, Ki_y, Ki_z;
+    double Kd_x, Kd_y, Kd_z;
 
-    float Kp_vx, Kp_vy, Kp_vz;
-    float Ki_vx, Ki_vy, Ki_vz;
-    float Kd_vx, Kd_vy, Kd_vz;
+    double Kp_vx, Kp_vy, Kp_vz;
+    double Ki_vx, Ki_vy, Ki_vz;
+    double Kd_vx, Kd_vy, Kd_vz;
 };
 
 struct Msg_timeout{
