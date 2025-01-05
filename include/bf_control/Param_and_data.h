@@ -2,7 +2,8 @@
 
 #include <ros/ros.h>
 
-
+#define RAD2DEG 57.29577951308232
+#define DEG2RAD 0.017453292519943
 struct Gain{
     double Kp_x, Kp_y, Kp_z;
     double Ki_x, Ki_y, Ki_z;
@@ -11,6 +12,7 @@ struct Gain{
     double Kp_vx, Kp_vy, Kp_vz;
     double Ki_vx, Ki_vy, Ki_vz;
     double Kd_vx, Kd_vy, Kd_vz;
+    double K_yaw;
 };
 
 struct Msg_timeout{

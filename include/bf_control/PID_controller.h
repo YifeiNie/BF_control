@@ -14,17 +14,17 @@ struct Lp3_filter {
 class PID_controller {
 
 public:
+    double desire_yaw;                          // 期望偏航角
     Eigen::Vector3d desire_position;            // 期望位置
     Eigen::Vector3d current_position;
+    Eigen::Vector3d desire_velocity             // 期望速度（储存外环的输出）
     Eigen::Vector3d current_velocity;
-    double desire_velocity_x;                   // 期望速度（储存外环的输出）
-    double desire_velocity_y;                   
-    double desire_velocity_z; 
-    double lp3_k;                               // 低通滤波器参数              
+    double lp3_k;                               // 低通滤波器参数    
+              
 
     Eigen::Vector3d position_error_sum;
     Eigen::Vector3d velocity_error_sum;
-    double balance_throuttle;                   // 平衡时的油门
+    double balance_thrust;                   // 平衡时的油门
     double position_x_i_ub, position_x_i_lb;     
     double position_y_i_ub, position_y_i_lb;    // 位置控制积分限幅
     double position_z_i_ub, position_z_i_lb;

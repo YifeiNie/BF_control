@@ -7,7 +7,7 @@
 #include <ros/ros.h>
 
 
-class Odom_input {
+class Odom {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     Eigen::Vector3d pos;
@@ -22,9 +22,11 @@ public:
     ros::Subscriber odom_data_subscriber;
 
     void feed(nav_msgs::OdometryConstPtr msg);
+    double quaternion2yaw(Eigen::Quaterniond q);
+
 };
 
-class RC_input {
+class RC {
 public:
     
     ros::Subscriber rc_data_subscriber;
