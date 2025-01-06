@@ -2,10 +2,8 @@
 #include <ros/ros.h>
 #include <mavros_msgs/RCIn.h>
 #include <sensor_msgs/Imu.h>
-#include <geometry_msgs/Vector3.h>
 #include <nav_msgs/Odometry.h>
 #include <Eigen/Dense>
-
 
 class Odom {
 public:
@@ -61,6 +59,7 @@ public:
     bool is_imu_received(const ros::Time &now_time);
 
 
-    void topic_handler_init(ros::NodeHandle &nh);
+    void topic_handler_init(ros::NodeHandle& nh, Topic_handler &th);
 };
+
 

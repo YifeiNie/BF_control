@@ -72,9 +72,9 @@ double Imu::get_current_yaw(){
     return yaw;
 }
 
-void Topic_handler::topic_handler_init(ros::NodeHandle &nh){
-    odom_subscriber = nh.subscribe<nav_msgs::Odometry>("odom", 100, boost::bind(&Odom::feed, odom, _1));
-    rc_subscriber = nh.subscribe<mavros_msgs::RCIn>("/mavros/rc/in", 100, boost::bind(&RC::feed, rc, _1));
-    imu_subscriber = nh.subscribe<sensor_msgs::Imu>("/mavros/imu/data", 100, boost::bind(&Imu::feed, imu, _1));
+void Topic_handler::topic_handler_init(ros::NodeHandle& nh, Topic_handler& th) {
+    odom_subscriber = nh.subscribe<nav_msgs::Odometry>("odom", 100, boost::bind(&Odom::feed, th.odom, _1));
+    rc_subscriber = nh.subscribe<mavros_msgs::RCIn>("/mavros/rc/in", 100, boost::bind(&RC::feed, th.rc, _1));
+    imu_subscriber = nh.subscribe<sensor_msgs::Imu>("/mavros/imu/data", 100, boost::bind(&Imu::feed, th.imu, _1));
     mav_cmd_publisher = nh.advertise<mavros_msgs::AttitudeTarget>("/mavros/setpoint_raw/attitude", 10);
 }

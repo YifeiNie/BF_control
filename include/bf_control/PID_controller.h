@@ -47,9 +47,9 @@ public:
     Gain gain;                                  // PID参数结构体
     mavros_msgs::AttitudeTarget att_cmd_msg;    // 发到飞控的控制指令
 
-    void init(ros::NodeHandle &nh);
-    void outer_position_loop(Eigen::Vector3d desire_position, Topic_handler* th);
-    void inner_attitude_loop(Topic_handler* th);
+    void init(ros::NodeHandle& nh);
+    void outer_position_loop(Topic_handler& th);
+    void inner_attitude_loop(Topic_handler& th);
     void update_desire(Eigen::Vector3d desire_position, double desire_yaw);
     double limit(double ub, double lb, double value);
     Eigen::Vector3d ve2vb(Eigen::Vector3d input, double yaw); // 全局坐标系到机体坐标系的转换

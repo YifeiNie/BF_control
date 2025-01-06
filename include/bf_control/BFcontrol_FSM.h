@@ -20,9 +20,8 @@ enum State{
 
 class BFcontrol_FSM {
 public:
-    State state;
-    Topic_handler th;
+    State state = MANUAL_CTRL;
     PID_controller pid;
 
-    void run(ros::NodeHandle &nh);
+    void run(ros::NodeHandle &nh, Topic_handler &th);
 };

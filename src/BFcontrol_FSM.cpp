@@ -1,6 +1,6 @@
 #include "BFcontrol_FSM.h"
 
-void BFcontrol_FSM::run(ros::NodeHandle &nh){
+void BFcontrol_FSM::run(ros::NodeHandle &nh, Topic_handler &th){
     pid.desire_yaw = th.imu.get_current_yaw();
     pid.desire_position = th.odom.position;
     ros::Time now_time = ros::Time::now();
@@ -17,8 +17,8 @@ void BFcontrol_FSM::run(ros::NodeHandle &nh){
             else{
                 Eigen::Vector3d pos(0, 0, 0.3);
                 pid.update_desire(pos, th.imu.get_current_yaw());
-                pid.outer_position_loop(pid.desire_position, &th);
-                pid.inner_attitude_loop(&th);
+                pid.outer_position_loop(th);
+                pid.inner_attitude_loop(th);
                 th.mav_cmd_publisher.publish(pid.att_cmd_msg);
             }
             break;

@@ -76,9 +76,9 @@ Eigen::Vector3d PID_controller::ve2vb(Eigen::Vector3d input, double yaw){
 }
 
 // 外环位置控制
-void PID_controller::outer_position_loop(Eigen::Vector3d desire_position, Topic_handler* th) {
+void PID_controller::outer_position_loop(Topic_handler& th) {
     // 位置误差 = 期望位置 - 当前位置
-    Eigen::Vector3d position_error = desire_position - th->odom.position;
+    Eigen::Vector3d position_error = desire_position - th.odom.position;
     position_error_sum += position_error / CTRL_FREQUENCY;
     
     double temp_position_i_x = gain.Ki_x * position_error_sum[0];
@@ -94,13 +94,13 @@ void PID_controller::outer_position_loop(Eigen::Vector3d desire_position, Topic_
 }
 
 // 内环姿态控制
-void PID_controller::inner_attitude_loop(Topic_handler* th){
+void PID_controller::inner_attitude_loop(Topic_handler& th){
 
     // 获取当前yaw角用于将全局坐标系的线速度转换为机体坐标系的线速度
-    double current_yaw_body = th->imu.get_current_yaw();
+    double current_yaw_body = th.imu.get_current_yaw();
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
-    Eigen::Vector3d velocity_error = desire_velocity - th->imu.linear_acc;
+    Eigen::Vector3d velocity_error = desire_velocity - th.imu.linear_acc;
     velocity_error_sum += velocity_error / CTRL_FREQUENCY;
 
     double temp_velocity_i_x = gain.Ki_vx * velocity_error_sum[0];
