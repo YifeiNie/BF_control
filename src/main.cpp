@@ -11,7 +11,8 @@ int main(int argc, char **argv){
     Topic_handler th;       // 实时更新并存储话题数据
     th.topic_handler_init(nh, th);
     fsm.pid.init(nh);
-    ros::Rate rate(10);
+    ros::Rate rate(100);
+    ROS_INFO("offboard_node is running");
     while (ros::ok()){
         ros::spinOnce();
         fsm.run(nh, th);

@@ -44,6 +44,9 @@ public:
     double velocity_x_i_ub, velocity_x_i_lb;
     double velocity_y_i_ub, velocity_y_i_lb;    // 速度控制积分限幅
     double velocity_z_i_ub, velocity_z_i_lb;
+    double thrust_bound;                        // 油门限幅
+    double x_bound, y_bound;                    // 姿态控制限幅
+
     Gain gain;                                  // PID参数结构体
     mavros_msgs::AttitudeTarget att_cmd_msg;    // 发到飞控的控制指令
 

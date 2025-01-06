@@ -36,7 +36,8 @@ void PID_controller::init(ros::NodeHandle &nh){
     nh.getParam("PID/velocity_y_i_lb", velocity_y_i_lb);
     nh.getParam("PID/velocity_z_i_ub", velocity_z_i_ub);
     nh.getParam("PID/velocity_z_i_lb", velocity_z_i_lb);
-    nh.getParam("Lowpass filter/lp3_k", lp3_k);
+    nh.getParam("PID/thrust_bound", thrust_bound);
+    nh.getParam("Lowpass_filter/lp3_k", lp3_k);
     nh.getParam("Drone/balance_thrust", balance_thrust);
     desire_position << 0, 0, 0;
     current_position << 0, 0, 0;
@@ -101,6 +102,8 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
     Eigen::Vector3d velocity_error = desire_velocity - th.imu.linear_acc;
+    // yaw的控制
+    double yaw_error = desire_yaw - current_yaw_body;
     velocity_error_sum += velocity_error / CTRL_FREQUENCY;
 
     double temp_velocity_i_x = gain.Ki_vx * velocity_error_sum[0];
@@ -110,15 +113,20 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
     temp_velocity_i_y = limit(velocity_y_i_ub, velocity_y_i_lb, temp_velocity_i_y);
     temp_velocity_i_z = limit(velocity_z_i_ub, velocity_z_i_lb, temp_velocity_i_z);
 
-    // yaw的控制
-    double yaw_error = desire_yaw - current_yaw_body;
+    double temp_x_out = (gain.Kp_vx * velocity_error[0] + temp_velocity_i_x);
+    double temp_y_out = (gain.Kp_vy * velocity_error[1] + temp_velocity_i_y);
+    double temp_z_out = gain.K_yaw * yaw_error;
+    double temp_thrust_out = balance_thrust + gain.Kp_vz * velocity_error[2] + temp_velocity_i_z;
+    temp_x_out = limit(x_bound, -x_bound, temp_x_out);
+    temp_y_out = limit(y_bound, -y_bound, temp_y_out);
+    temp_thrust_out = limit(thrust_bound, 0, temp_z_out);  
 
     // 设置飞控指令(body_rate的含义由att_cmd_msg.type_mask决定: 4是角度，1是角速度)
     att_cmd_msg.type_mask = 4;
-    att_cmd_msg.body_rate.x = (gain.Kp_vx * velocity_error[0] + temp_velocity_i_x) * RAD2DEG;
-    att_cmd_msg.body_rate.y = (gain.Kp_vy * velocity_error[1] + temp_velocity_i_y) * RAD2DEG;
-    att_cmd_msg.body_rate.z = gain.K_yaw * yaw_error;
-    att_cmd_msg.thrust = balance_thrust + gain.Kp_vz * velocity_error[2] + temp_velocity_i_z;
+    att_cmd_msg.body_rate.x = temp_x_out * RAD2DEG;
+    att_cmd_msg.body_rate.y = temp_y_out * RAD2DEG;
+    att_cmd_msg.body_rate.z = temp_z_out;
+    att_cmd_msg.thrust = temp_thrust_out;
     if(att_cmd_msg.thrust <= 0.01){
         att_cmd_msg.thrust = 0;
     }

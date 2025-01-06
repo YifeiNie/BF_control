@@ -1,0 +1,53 @@
+PID:
+  Kp_x : 1.5
+  Kp_y : 1.5
+  Kp_z : 1.3
+  Kp_vx : 0.2
+  Kp_vy : -0.2
+  Kp_vz : 0.08
+
+  Ki_x : 0.08
+  Ki_y : 0.08
+  Ki_z : 0.02
+  Ki_vx : 0.0
+  Ki_vy : 0.0
+  Ki_vz : 0.1
+
+  Kd_x : 0
+  Kd_y : 0
+  Kd_z : 0
+  Kd_vx : 0
+  Kd_vy : 0
+  Kd_vz : 0
+  K_yaw : 6.0
+
+  position_x_i_ub : 5.0
+  position_x_i_lb : -5.0
+  position_y_i_ub : 5.0
+  position_y_i_lb : -5.0
+  position_z_i_ub : 5.0
+  position_z_i_lb : -5.0
+  velocity_x_i_ub : 0.8
+  velocity_x_i_lb : -0.8
+  velocity_y_i_ub : 0.8
+  velocity_y_i_lb : -0.8
+  velocity_z_i_ub : 0.8
+  velocity_z_i_lb : -0.8
+  thrust_bound : 0.5
+  x_bound : 0.5
+  y_bound : 0.5
+
+Lowpass_filter:
+  lp3_k : 0.2
+
+Drone_Param:
+  # TWR_max_ : 2.5
+  TWR_max_ : 3.5
+  # mass_ : 0.25
+  mass_ : 0.305
+  g_ : 9.81
+  # balance_point_ : 0.35
+  balance_point_ : 0.25
+  k_z_1_ : -0.3797
+  k_h_ : 0.00075
+  waypoint_radius_ : 1.0
