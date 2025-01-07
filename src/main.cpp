@@ -3,15 +3,16 @@
 #include "topic_handler.h"
 #include <PID_controller.h>
 
+Topic_handler th;       // 实时更新并存储话题数据
+
 int main(int argc, char **argv){
     ros::init(argc, argv, "offboard_node");
 
     ros::NodeHandle nh("~");
     BFcontrol_FSM fsm;      // 用于执行程序主体
-    Topic_handler th;       // 实时更新并存储话题数据
-    th.topic_handler_init(nh, th);
+    th.topic_handler_init(nh);
     fsm.pid.init(nh);
-    ros::Rate rate(100);
+    ros::Rate rate(CTRL_FREQUENCY);
     ROS_INFO("offboard_node is running");
     while (ros::ok()){
         ros::spinOnce();

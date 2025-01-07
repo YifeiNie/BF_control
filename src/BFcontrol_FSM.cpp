@@ -6,13 +6,18 @@ void BFcontrol_FSM::run(ros::NodeHandle &nh, Topic_handler &th){
     ros::Time now_time = ros::Time::now();
     switch (state){
         case MANUAL_CTRL:
-            if(th.rc.is_offboard && th.rc.is_armed && th.is_odom_received(now_time)){
+            
+            ROS_INFO("is_armed = %d", th.rc.is_armed);
+            ROS_INFO("is_offboard = %d", th.rc.is_offboard);
+            if(th.rc.is_offboard && th.rc.is_armed){
                 state = CMD_CTRL;
+                ROS_INFO("Enter offboard mode!");
             }
             break;
         case CMD_CTRL:
-            if(!th.rc.is_offboard || !th.is_odom_received(now_time)){
+            if(!th.rc.is_offboard ){
                 state = MANUAL_CTRL;
+                ROS_INFO("Enter manual mode!");
             }
             else{
                 Eigen::Vector3d pos(0, 0, 0.3);

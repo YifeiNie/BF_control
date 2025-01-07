@@ -57,9 +57,8 @@ public:
     bool is_rc_received(const ros::Time &now_time);
     bool is_odom_received(const ros::Time &now_time);
     bool is_imu_received(const ros::Time &now_time);
+    bool debug_flag;
 
-
-    void topic_handler_init(ros::NodeHandle& nh, Topic_handler &th);
+    void topic_handler_init(ros::NodeHandle& nh);
 };
-
 

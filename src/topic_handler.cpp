@@ -10,6 +10,7 @@ bool Topic_handler::is_rc_received(const ros::Time &now_time){
 }
 
 bool Topic_handler::is_odom_received(const ros::Time &now_time){
+    ROS_INFO("TIME IS %f",(now_time - odom.rcv_stamp).toSec());
     return (now_time - odom.rcv_stamp).toSec() < 0.5;
 }
 
@@ -23,7 +24,7 @@ void RC::feed(mavros_msgs::RCInConstPtr msg){
     pitch = msg->channels[1];
     yaw = msg->channels[2];
     thrust = msg->channels[3];
-    if (msg->channels[5] > 1700){
+    if (msg->channels[4] > 1700){
         is_armed = 1;
     }else{
         is_armed = 0;
@@ -34,6 +35,9 @@ void RC::feed(mavros_msgs::RCInConstPtr msg){
         is_offboard = 0;
     }
     rcv_stamp = ros::Time::now();
+    // ROS_INFO("channel 7 = %d",msg->channels[7] );
+    // ROS_INFO("is_offboard = %d", is_offboard);
+    // ROS_INFO("roll = %d", roll);
 }
 
 
@@ -51,6 +55,8 @@ void Odom::feed(nav_msgs::OdometryConstPtr msg){
     q.y() = msg->pose.pose.orientation.y;
     q.z() = msg->pose.pose.orientation.z;
     rcv_stamp = ros::Time::now();
+    
+    // ROS_INFO("Get odom data!!!");
 }
 
 void Imu::feed(sensor_msgs::ImuConstPtr msg){
@@ -65,6 +71,7 @@ void Imu::feed(sensor_msgs::ImuConstPtr msg){
     angle_vel(1) = msg->angular_velocity.y;
     angle_vel(2) = msg->angular_velocity.z;
     rcv_stamp = ros::Time::now();
+    // ROS_INFO("Get imu data!!!");
 }
   
 double Imu::get_current_yaw(){
@@ -72,9 +79,14 @@ double Imu::get_current_yaw(){
     return yaw;
 }
 
-void Topic_handler::topic_handler_init(ros::NodeHandle& nh, Topic_handler& th) {
-    odom_subscriber = nh.subscribe<nav_msgs::Odometry>("odom", 100, boost::bind(&Odom::feed, th.odom, _1));
-    rc_subscriber = nh.subscribe<mavros_msgs::RCIn>("/mavros/rc/in", 100, boost::bind(&RC::feed, th.rc, _1));
-    imu_subscriber = nh.subscribe<sensor_msgs::Imu>("/mavros/imu/data", 100, boost::bind(&Imu::feed, th.imu, _1));
+void Topic_handler::topic_handler_init(ros::NodeHandle& nh) {
+    odom_subscriber = nh.subscribe<nav_msgs::Odometry>("/ov_msckf/odomimu", 100, boost::bind(&Odom::feed, &(this->odom), _1));
+    rc_subscriber = nh.subscribe<mavros_msgs::RCIn>("/mavros/rc/in", 100, boost::bind(&RC::feed, &(this->rc), _1));
+    imu_subscriber = nh.subscribe<sensor_msgs::Imu>("/mavros/imu/data", 100, boost::bind(&Imu::feed, &(this->imu), _1));
     mav_cmd_publisher = nh.advertise<mavros_msgs::AttitudeTarget>("/mavros/setpoint_raw/attitude", 10);
+    debug_flag = 1;
+}
+
+void rc_feed_calledback(mavros_msgs::RCInConstPtr msg){
+    
 }

@@ -2,7 +2,7 @@
 #include <Eigen/Dense>
 #include <topic_handler.h>
 
-#define CTRL_FREQUENCY 100
+#define CTRL_FREQUENCY 150
 #define RAD2DEG 57.29577951308232
 #define DEG2RAD 0.017453292519943
 
@@ -34,7 +34,8 @@ public:
     Eigen::Vector3d current_velocity;
     double lp3_k;                               // 低通滤波器参数    
               
-
+    aNYF
+    
     Eigen::Vector3d position_error_sum;
     Eigen::Vector3d velocity_error_sum;
     double balance_thrust;                   // 平衡时的油门
