@@ -130,4 +130,5 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
     if(att_cmd_msg.thrust <= 0.01){
         att_cmd_msg.thrust = 0;
     }
+    
 }

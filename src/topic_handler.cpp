@@ -10,7 +10,6 @@ bool Topic_handler::is_rc_received(const ros::Time &now_time){
 }
 
 bool Topic_handler::is_odom_received(const ros::Time &now_time){
-    ROS_INFO("TIME IS %f",(now_time - odom.rcv_stamp).toSec());
     return (now_time - odom.rcv_stamp).toSec() < 0.5;
 }
 
@@ -85,8 +84,4 @@ void Topic_handler::topic_handler_init(ros::NodeHandle& nh) {
     imu_subscriber = nh.subscribe<sensor_msgs::Imu>("/mavros/imu/data", 100, boost::bind(&Imu::feed, &(this->imu), _1));
     mav_cmd_publisher = nh.advertise<mavros_msgs::AttitudeTarget>("/mavros/setpoint_raw/attitude", 10);
     debug_flag = 1;
-}
-
-void rc_feed_calledback(mavros_msgs::RCInConstPtr msg){
-    
 }

@@ -33,8 +33,6 @@ public:
     Eigen::Vector3d desire_velocity ;           // 期望速度（储存外环的输出）
     Eigen::Vector3d current_velocity;
     double lp3_k;                               // 低通滤波器参数    
-              
-    aNYF
     
     Eigen::Vector3d position_error_sum;
     Eigen::Vector3d velocity_error_sum;
