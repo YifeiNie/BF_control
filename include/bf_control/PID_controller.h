@@ -5,6 +5,7 @@
 #define CTRL_FREQUENCY 150
 #define RAD2DEG 57.29577951308232
 #define DEG2RAD 0.017453292519943
+#define G 9.80665
 
 struct Gain{
     double Kp_x, Kp_y, Kp_z;
@@ -45,6 +46,7 @@ public:
     double velocity_z_i_ub, velocity_z_i_lb;
     double thrust_bound;                        // 油门限幅
     double x_bound, y_bound;                    // 姿态控制限幅
+    Eigen::Vector3d g_vector;
 
     Gain gain;                                  // PID参数结构体
     mavros_msgs::AttitudeTarget att_cmd_msg;    // 发到飞控的控制指令

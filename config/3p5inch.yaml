@@ -40,14 +40,14 @@ PID:
 Lowpass_filter:
   lp3_k : 0.2
 
-Drone_Param:
+Drone:
   # TWR_max_ : 2.5
   TWR_max_ : 3.5
   # mass_ : 0.25
   mass_ : 0.305
-  g_ : 9.81
+  g : 9.80665
   # balance_point_ : 0.35
-  balance_point_ : 0.25
+  balance_thrust : 0.25
   k_z_1_ : -0.3797
   k_h_ : 0.00075
   waypoint_radius_ : 1.0

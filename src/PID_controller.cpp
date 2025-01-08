@@ -5,6 +5,7 @@
 #include "topic_handler.h"
 
 void PID_controller::init(ros::NodeHandle &nh){
+    // 如果是全局参数需要在最前面夹斜杠，但是我这是四有参数，所以不加
     nh.getParam("PID/Kp_x", gain.Kp_x);
     nh.getParam("PID/Kp_y", gain.Kp_y);
     nh.getParam("PID/Kp_z", gain.Kp_z);
@@ -36,14 +37,18 @@ void PID_controller::init(ros::NodeHandle &nh){
     nh.getParam("PID/velocity_y_i_lb", velocity_y_i_lb);
     nh.getParam("PID/velocity_z_i_ub", velocity_z_i_ub);
     nh.getParam("PID/velocity_z_i_lb", velocity_z_i_lb);
+    nh.getParam("PID/x_bound", x_bound);
+    nh.getParam("PID/y_bound", y_bound);
     nh.getParam("PID/thrust_bound", thrust_bound);
     nh.getParam("Lowpass_filter/lp3_k", lp3_k);
     nh.getParam("Drone/balance_thrust", balance_thrust);
+    nh.getParam("Drone/g", balance_thrust);
     desire_position << 0, 0, 0;
     current_position << 0, 0, 0;
     current_velocity << 0, 0, 0;
     position_error_sum << 0, 0, 0;
     velocity_error_sum << 0, 0, 0;
+    g_vector << 0, 0, G;
 }
 
 void PID_controller::update_desire(Eigen::Vector3d desire_position, double desire_yaw) {
@@ -68,7 +73,8 @@ Eigen::Vector3d PID_controller::lp3_filter(Lp3_filter lp3_filter, Eigen::Vector3
 }
 
 // 世界坐标系转机体坐标系
-Eigen::Vector3d PID_controller::ve2vb(Eigen::Vector3d input, double yaw){
+Eigen::Vector3d PID_controller::
+ve2vb(Eigen::Vector3d input, double yaw){
     Eigen::Matrix3d R;
     R << cos(yaw), -sin(yaw), 0,
          sin(yaw), cos(yaw), 0,
@@ -101,7 +107,7 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
     double current_yaw_body = th.imu.get_current_yaw();
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
-    Eigen::Vector3d velocity_error = desire_velocity - th.imu.linear_acc;
+    Eigen::Vector3d velocity_error = desire_velocity - th.imu.linear_acc - g_vector;
     // yaw的控制
     double yaw_error = desire_yaw - current_yaw_body;
     velocity_error_sum += velocity_error / CTRL_FREQUENCY;
@@ -115,17 +121,18 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
 
     double temp_x_out = (gain.Kp_vx * velocity_error[0] + temp_velocity_i_x);
     double temp_y_out = (gain.Kp_vy * velocity_error[1] + temp_velocity_i_y);
-    double temp_z_out = gain.K_yaw * yaw_error;
     double temp_thrust_out = balance_thrust + gain.Kp_vz * velocity_error[2] + temp_velocity_i_z;
+    double temp_yaw_out = gain.K_yaw * yaw_error;
+
     temp_x_out = limit(x_bound, -x_bound, temp_x_out);
     temp_y_out = limit(y_bound, -y_bound, temp_y_out);
-    temp_thrust_out = limit(thrust_bound, 0, temp_z_out);  
+    temp_thrust_out = limit(thrust_bound, -thrust_bound, temp_thrust_out);  
 
     // 设置飞控指令(body_rate的含义由att_cmd_msg.type_mask决定: 4是角度，1是角速度)
     att_cmd_msg.type_mask = 4;
     att_cmd_msg.body_rate.x = temp_x_out * RAD2DEG;
     att_cmd_msg.body_rate.y = temp_y_out * RAD2DEG;
-    att_cmd_msg.body_rate.z = temp_z_out;
+    att_cmd_msg.body_rate.z = temp_yaw_out;
     att_cmd_msg.thrust = temp_thrust_out;
     if(att_cmd_msg.thrust <= 0.01){
         att_cmd_msg.thrust = 0;

@@ -9,19 +9,20 @@ void BFcontrol_FSM::run(ros::NodeHandle &nh, Topic_handler &th){
             
             ROS_INFO("is_armed = %d", th.rc.is_armed);
             ROS_INFO("is_offboard = %d", th.rc.is_offboard);
-            if(th.rc.is_offboard && th.rc.is_armed && th.is_odom_received(now_time)){
+            if(th.rc.is_offboard && th.rc.is_armed){
+            // if(th.rc.is_offboard && th.rc.is_armed && th.is_odom_received(now_time)){
                 state = CMD_CTRL;
+                pid.update_desire(th.odom.position, th.imu.get_current_yaw());
                 ROS_INFO("Enter offboard mode!");
             }
             break;
         case CMD_CTRL:
-            if(!th.rc.is_offboard || !(th.is_odom_received(now_time))){
+            if(!th.rc.is_offboard){
+            // if(!th.rc.is_offboard || !(th.is_odom_received(now_time))){
                 state = MANUAL_CTRL;
                 ROS_INFO("Enter manual mode!");
             }
             else{
-                Eigen::Vector3d pos(0, 0, 0.3);
-                pid.update_desire(pos, th.imu.get_current_yaw());
                 pid.outer_position_loop(th);
                 pid.inner_attitude_loop(th);
                 th.mav_cmd_publisher.publish(pid.att_cmd_msg);
