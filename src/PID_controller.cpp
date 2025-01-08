@@ -134,7 +134,7 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
     att_cmd_msg.body_rate.y = temp_y_out * RAD2DEG;
     att_cmd_msg.body_rate.z = temp_yaw_out;
     att_cmd_msg.thrust = temp_thrust_out;
-    if(att_cmd_msg.thrust <= 0.1){
+    if(att_cmd_msg.thrust <= 0.01){
         att_cmd_msg.thrust = 0;
     }
     
