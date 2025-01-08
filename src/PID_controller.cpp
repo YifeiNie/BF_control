@@ -42,7 +42,7 @@ void PID_controller::init(ros::NodeHandle &nh){
     nh.getParam("PID/thrust_bound", thrust_bound);
     nh.getParam("Lowpass_filter/lp3_k", lp3_k);
     nh.getParam("Drone/balance_thrust", balance_thrust);
-    nh.getParam("Drone/g", balance_thrust);
+    // nh.getParam("Drone/g", balance_thrust);
     desire_position << 0, 0, 0;
     current_position << 0, 0, 0;
     current_velocity << 0, 0, 0;
@@ -76,8 +76,8 @@ Eigen::Vector3d PID_controller::lp3_filter(Lp3_filter lp3_filter, Eigen::Vector3
 Eigen::Vector3d PID_controller::
 ve2vb(Eigen::Vector3d input, double yaw){
     Eigen::Matrix3d R;
-    R << cos(yaw), -sin(yaw), 0,
-         sin(yaw), cos(yaw), 0,
+    R << cos(yaw), sin(yaw), 0,
+         -sin(yaw), cos(yaw), 0,
          0, 0, 1;
     return R * input;
 }
@@ -107,7 +107,7 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
     double current_yaw_body = th.imu.get_current_yaw();
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
-    Eigen::Vector3d velocity_error = desire_velocity - th.imu.linear_acc - g_vector;
+    Eigen::Vector3d velocity_error = desire_velocity - th.odom.velocity;
     // yaw的控制
     double yaw_error = desire_yaw - current_yaw_body;
     velocity_error_sum += velocity_error / CTRL_FREQUENCY;
@@ -134,7 +134,7 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
     att_cmd_msg.body_rate.y = temp_y_out * RAD2DEG;
     att_cmd_msg.body_rate.z = temp_yaw_out;
     att_cmd_msg.thrust = temp_thrust_out;
-    if(att_cmd_msg.thrust <= 0.01){
+    if(att_cmd_msg.thrust <= 0.1){
         att_cmd_msg.thrust = 0;
     }
     

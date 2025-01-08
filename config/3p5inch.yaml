@@ -4,7 +4,7 @@ PID:
   Kp_z : 1.3
   Kp_vx : 0.2
   Kp_vy : -0.2
-  Kp_vz : 0.08
+  Kp_vz : 8.08
 
   Ki_x : 0.08
   Ki_y : 0.08
@@ -33,7 +33,7 @@ PID:
   velocity_y_i_lb : -0.8
   velocity_z_i_ub : 0.8
   velocity_z_i_lb : -0.8
-  thrust_bound : 0.5
+  thrust_bound : 0.3
   x_bound : 0.5
   y_bound : 0.5
 
@@ -47,7 +47,7 @@ Drone:
   mass_ : 0.305
   g : 9.80665
   # balance_point_ : 0.35
-  balance_thrust : 0.25
+  balance_thrust : 0.0
   k_z_1_ : -0.3797
   k_h_ : 0.00075
   waypoint_radius_ : 1.0
