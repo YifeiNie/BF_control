@@ -130,8 +130,8 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
 
     // 设置飞控指令(body_rate的含义由att_cmd_msg.type_mask决定: 4是角度，1是角速度)
     att_cmd_msg.type_mask = 4;
-    att_cmd_msg.body_rate.x = temp_x_out * RAD2DEG;
-    att_cmd_msg.body_rate.y = temp_y_out * RAD2DEG;
+    att_cmd_msg.body_rate.x = temp_y_out * RAD2DEG;
+    att_cmd_msg.body_rate.y = temp_x_out * RAD2DEG;
     att_cmd_msg.body_rate.z = temp_yaw_out;
     att_cmd_msg.thrust = temp_thrust_out;
     if(att_cmd_msg.thrust <= 0.01){

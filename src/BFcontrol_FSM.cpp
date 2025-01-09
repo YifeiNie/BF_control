@@ -1,8 +1,6 @@
 #include "BFcontrol_FSM.h"
 
 void BFcontrol_FSM::run(ros::NodeHandle &nh, Topic_handler &th){
-    pid.desire_yaw = th.imu.get_current_yaw();
-    pid.desire_position = th.odom.position;
     ros::Time now_time = ros::Time::now();
     switch (state){
         case MANUAL_CTRL:

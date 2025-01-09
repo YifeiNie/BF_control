@@ -1,13 +1,13 @@
 PID:
-  Kp_x : 1.5
-  Kp_y : 1.5
-  Kp_z : 1.3
+  Kp_x : 11.5
+  Kp_y : 11.5
+  Kp_z : 11.3
   Kp_vx : 0.2
   Kp_vy : -0.2
   Kp_vz : 0.08
 
-  Ki_x : 0.08
-  Ki_y : 0.08
+  Ki_x : 0.8
+  Ki_y : 0.8
   Ki_z : 0.02
   Ki_vx : 0.0
   Ki_vy : 0.0
@@ -41,13 +41,6 @@ Lowpass_filter:
   lp3_k : 0.2
 
 Drone:
-  # TWR_max_ : 2.5
-  TWR_max_ : 3.5
-  # mass_ : 0.25
-  mass_ : 0.305
+  mass : 0.305
   g : 9.80665
-  # balance_point_ : 0.35
   balance_thrust : 0.0
-  k_z_1_ : -0.3797
-  k_h_ : 0.00075
-  waypoint_radius_ : 1.0
