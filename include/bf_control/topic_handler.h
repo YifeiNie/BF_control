@@ -7,7 +7,7 @@
 
 class Odom {
 public:
-    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     Eigen::Vector3d position;
     Eigen::Vector3d velocity;
     Eigen::Quaterniond q;
@@ -31,7 +31,7 @@ public:
 
 class Imu {
 public:
-    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     Eigen::Vector3d linear_acc;
     Eigen::Vector3d angle_vel;
     Eigen::Quaterniond q;

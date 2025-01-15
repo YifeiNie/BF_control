@@ -13,3 +13,5 @@
     - 查看路径`/usr/local/include/opencv4/opencv2`下是否有之前报错缺失的hpp文件
     - 在/OpenVINS_ws/src/open_vins/ov_core路径下的CMakeLists文件前面添加`set(Opencv_DIR /user/local/lib/cmake/opencv4)`，以使得构建时不链接系统级别下的opencv，而是链接用户级别下的opencv
 
+#### OpenVINS漂移
+- 电机振动或者高速晃动等高频噪声导致openins里程计严重的漂移，使用vins-fusion没有这种问题但性能要求高，换用nx

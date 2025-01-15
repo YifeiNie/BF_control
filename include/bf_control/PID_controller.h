@@ -2,7 +2,7 @@
 #include <Eigen/Dense>
 #include <topic_handler.h>
 
-#define CTRL_FREQUENCY 150
+#define CTRL_FREQUENCY 100
 #define RAD2DEG 57.29577951308232
 #define DEG2RAD 0.017453292519943
 #define G 9.80665
@@ -19,6 +19,7 @@ struct Gain{
 };
 
 struct Lp3_filter {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     Eigen::Vector3d state;
     Eigen::Vector3d state1;
     Eigen::Vector3d state2;
@@ -28,6 +29,7 @@ struct Lp3_filter {
 class PID_controller {
 
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     double desire_yaw;                          // 期望偏航角
     Eigen::Vector3d desire_position;            // 期望位置
     Eigen::Vector3d current_position;

@@ -86,6 +86,9 @@ ve2vb(Eigen::Vector3d input, double yaw){
 void PID_controller::outer_position_loop(Topic_handler& th) {
     // 位置误差 = 期望位置 - 当前位置
     Eigen::Vector3d position_error = desire_position - th.odom.position;
+    // ROS_INFO("x cmd is %f", position_error[0]);
+    // ROS_INFO("y cmd is %f", position_error[1]);
+    // ROS_INFO("thrust cmd is %f", position_error[2]);
     position_error_sum += position_error / CTRL_FREQUENCY;
     
     double temp_position_i_x = gain.Ki_x * position_error_sum[0];
@@ -108,6 +111,7 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
     Eigen::Vector3d velocity_error = desire_velocity - th.odom.velocity;
+
     // yaw的控制
     double yaw_error = desire_yaw - current_yaw_body;
     velocity_error_sum += velocity_error / CTRL_FREQUENCY;
@@ -130,12 +134,12 @@ void PID_controller::inner_attitude_loop(Topic_handler& th){
 
     // 设置飞控指令(body_rate的含义由att_cmd_msg.type_mask决定: 4是角度，1是角速度)
     att_cmd_msg.type_mask = 4;
-    att_cmd_msg.body_rate.x = temp_y_out * RAD2DEG;
-    att_cmd_msg.body_rate.y = temp_x_out * RAD2DEG;
-    att_cmd_msg.body_rate.z = temp_yaw_out;
+    //att_cmd_msg.body_rate.x = temp_y_out * RAD2DEG;
+    //att_cmd_msg.body_rate.y = temp_x_out * RAD2DEG;
+    //att_cmd_msg.body_rate.z = temp_yaw_out;
     att_cmd_msg.thrust = temp_thrust_out;
-    if(att_cmd_msg.thrust <= 0.01){
-        att_cmd_msg.thrust = 0;
-    }
+    // if(att_cmd_msg.thrust <= 0.01){
+    //     att_cmd_msg.thrust = 0;
+    // }
     
 }

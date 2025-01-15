@@ -23,5 +23,5 @@ public:
     State state = MANUAL_CTRL;
     PID_controller pid;
 
-    void run(ros::NodeHandle &nh, Topic_handler &th);
+    void run(Topic_handler &th);
 };
