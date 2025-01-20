@@ -1,13 +1,13 @@
 PID:
-  Kp_x : 10.5
-  Kp_y : 10.5
-  Kp_z : 2.5
+  Kp_x : 1.5
+  Kp_y : 1.5
+  Kp_z : 2.2
   Kp_vx : 0.2
-  Kp_vy : -0.2
+  Kp_vy : 0.2
   Kp_vz : 0.08
 
-  Ki_x : 0.2
-  Ki_y : 0.08
+  Ki_x : 0.012
+  Ki_y : 0.012
   Ki_z : 0.03
   Ki_vx : 0.0
   Ki_vy : 0.0
@@ -21,15 +21,15 @@ PID:
   Kd_vz : 0
   K_yaw : 6.0
 
-  position_x_i_bound : 5.0
-  position_y_i_bound : 5.0
-  position_z_i_bound : 5.0
+  position_x_i_bound : 1.0
+  position_y_i_bound : 1.0
+  position_z_i_bound : 1.0
   velocity_x_i_bound : 0.8
   velocity_y_i_bound : 0.8
   velocity_z_i_bound : 0.8
-  thrust_bound : 0.38
-  x_bound : 0.5
-  y_bound : 0.5
+  thrust_bound : 0.36
+  x_bound : 0.3
+  y_bound : 0.3
 
 # 单环PID混合控制
 PID_single:

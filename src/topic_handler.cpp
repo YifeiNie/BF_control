@@ -58,6 +58,11 @@ void Odom::feed(nav_msgs::OdometryConstPtr msg){
     // ROS_INFO("Get odom data!!!");
 }
 
+double Odom::get_current_yaw(){
+    double yaw = atan2(2*(q.x()*q.y() + q.w()*q.z()), q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z());
+    return yaw;
+}
+
 void Imu::feed(sensor_msgs::ImuConstPtr msg){
     linear_acc(0) = msg->linear_acceleration.x;
     linear_acc(1) = msg->linear_acceleration.y;
@@ -72,7 +77,7 @@ void Imu::feed(sensor_msgs::ImuConstPtr msg){
     rcv_stamp = ros::Time::now();
     // ROS_INFO("Get imu data!!!");
 }
-  
+
 double Imu::get_current_yaw(){
     double yaw = atan2(2*(q.x()*q.y() + q.w()*q.z()), q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z());
     return yaw;

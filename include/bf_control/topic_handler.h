@@ -14,6 +14,7 @@ public:
 
     nav_msgs::Odometry msg;
     ros::Time rcv_stamp;
+    double get_current_yaw();
     void feed(nav_msgs::OdometryConstPtr msg);
 };
 

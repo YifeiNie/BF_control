@@ -120,7 +120,7 @@ void PID_controller::outer_position_loop(Topic_handler& th) {
 void PID_controller::inner_velocity_loop(Topic_handler& th){
 
     // 获取当前yaw角用于将全局坐标系的线速度转换为机体坐标系的线速度
-    double current_yaw_body = th.imu.get_current_yaw();
+    double current_yaw_body = th.odom.get_current_yaw();
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
     Eigen::Vector3d velocity_error = desire_velocity - th.odom.velocity;
@@ -147,8 +147,8 @@ void PID_controller::inner_velocity_loop(Topic_handler& th){
 
     // 设置飞控指令(body_rate的含义由att_cmd_msg.type_mask决定: 4是角度，1是角速度)
     att_cmd_msg.type_mask = 4;
-    //att_cmd_msg.body_rate.x = temp_y_out * RAD2DEG;
-    //att_cmd_msg.body_rate.y = temp_x_out * RAD2DEG;
+    att_cmd_msg.body_rate.x = -temp_y_out * RAD2DEG;
+    att_cmd_msg.body_rate.y = temp_x_out * RAD2DEG;
     //att_cmd_msg.body_rate.z = temp_yaw_out;
     att_cmd_msg.thrust = temp_thrust_out;
     // if(abs(att_cmd_msg.thrust) <= 0.01){

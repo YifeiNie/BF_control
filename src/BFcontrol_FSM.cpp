@@ -13,7 +13,7 @@ void BFcontrol_FSM::run(Topic_handler &th){
                 state = CMD_CTRL;
                 pid.desire_position = th.odom.position;
                 pid.desire_position[2] += 0.4;
-                pid.desire_yaw = th.imu.get_current_yaw();
+                pid.desire_yaw = th.odom.get_current_yaw();
                 ROS_INFO("Enter offboard mode!");
             }
             break;
