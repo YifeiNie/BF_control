@@ -11,11 +11,15 @@ public:
     Eigen::Vector3d position;
     Eigen::Vector3d velocity;
     Eigen::Quaterniond q;
-
     nav_msgs::Odometry msg;
     ros::Time rcv_stamp;
-    double get_current_yaw();
+    double yaw_offset = 0.0;
+    bool yaw_offset_initialized = false;
+    double get_current_yaw() const;
     void feed(nav_msgs::OdometryConstPtr msg);
+    Eigen::Vector3d t265_offset = Eigen::Vector3d::Zero();
+    bool offset_initialized = false;
+    Eigen::Vector3d desired_origin{-0.02, 0.0, -0.06};  // 飞控原点
 };
 
 class RC {
@@ -36,11 +40,17 @@ public:
     Eigen::Vector3d linear_acc;
     Eigen::Vector3d angle_vel;
     Eigen::Quaterniond q;
-
+    
     sensor_msgs::Imu msg;
     ros::Time rcv_stamp;
     double get_current_yaw();
+    double get_current_yaw(double t265_yaw, bool use_offset); // 新函数
+
+    double imu_yaw_offset = 0.0; // 新增成员变量
+    bool imu_yaw_offset_initialized = false;
     void feed(sensor_msgs::ImuConstPtr msg);
+
+
 };
 
 
@@ -51,6 +61,8 @@ public:
     RC rc;
     Imu imu;
 
+
+    ros::Publisher odom_ned_publisher;
     ros::Subscriber odom_subscriber;
     ros::Subscriber rc_subscriber;
     ros::Subscriber imu_subscriber;
@@ -61,5 +73,8 @@ public:
     bool debug_flag;
 
     void topic_handler_init(ros::NodeHandle& nh);
+    void update_yaw_offset();
+    void odom_callback(const nav_msgs::OdometryConstPtr& msg);
+
 };
 

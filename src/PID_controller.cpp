@@ -97,6 +97,10 @@ ve2vb(Eigen::Vector3d input, double yaw){
 
 // 外环位置控制
 void PID_controller::outer_position_loop(Topic_handler& th) {
+    // double current_yaw_body = th.odom.get_current_yaw();
+    // desire_velocity = ve2vb(desire_velocity, current_yaw_body);
+    // // 速度误差 = 期望速度 - 当前速度
+    // Eigen::Vector3d velocity_error = desire_velocity - th.odom.velocity;
     // 位置误差 = 期望位置 - 当前位置
     Eigen::Vector3d position_error = desire_position - th.odom.position;
     // ROS_INFO("x cmd is %f", position_error[0]);
@@ -116,6 +120,107 @@ void PID_controller::outer_position_loop(Topic_handler& th) {
     desire_velocity[2] = gain.Kp_z * position_error[2] + temp_position_i_z;
 }
 
+// Eigen::Vector3d PID_controller::velocity_loop_acc_cmd(Topic_handler& th) {
+
+//     double yaw = th.odom.get_current_yaw();
+
+//     // 机体系速度误差
+//     Eigen::Vector3d vel_des_body = ve2vb(desire_velocity, yaw);
+//     Eigen::Vector3d velocity_error = desire_velocity - th.odom.velocity;
+
+//     // 积分项
+//     velocity_error_sum += velocity_error/ CTRL_FREQUENCY;
+
+//     Eigen::Vector3d vel_i;
+//     vel_i[0] = limit(velocity_x_i_bound, -velocity_x_i_bound, gain.Ki_vx * velocity_error_sum[0]);
+//     vel_i[1] = limit(velocity_y_i_bound, -velocity_y_i_bound, gain.Ki_vy * velocity_error_sum[1]);
+//     vel_i[2] = limit(velocity_z_i_bound, -velocity_z_i_bound, gain.Ki_vz * velocity_error_sum[2]);
+
+//     // 输出期望加速度（速度→加速度）
+//     Eigen::Vector3d acc_des;
+//     acc_des[0] = gain.Kp_vx * vel_err[0] + vel_i[0];
+//     acc_des[1] = gain.Kp_vy * vel_err[1] + vel_i[1];
+//     acc_des[2] = gain.Kp_vz * vel_err[2] + vel_i[2];
+
+//     return acc_des;
+// }
+
+// Eigen::Vector3d PID_controller::acc_to_attitude(Eigen::Vector3d acc_des, double yaw) {
+
+//     double g = 9.80665;
+
+//     double ax = acc_des[0];
+//     double ay = acc_des[1];
+//     double az = acc_des[2] + g;  // 加上重力补偿
+
+//     // 标准转换：期望加速度 → roll/pitch
+//     double theta_des =  ( ax * cos(yaw) + ay * sin(yaw) ) / g;  // pitch
+//     double phi_des   =  ( ax * sin(yaw) - ay * cos(yaw) ) / g;  // roll
+
+//     // 限幅
+//     phi_des   = limit(0.5, -0.5, phi_des);
+//     theta_des = limit(0.5, -0.5, theta_des);
+
+//     return Eigen::Vector3d(phi_des, theta_des, desire_yaw);
+// }
+
+// Eigen::Vector3d PID_controller::attitude_loop_rate_cmd(Topic_handler& th,
+//                                                        Eigen::Vector3d att_des) {
+
+//     double yaw = th.odom.get_current_yaw();
+
+//     // 当前姿态
+//     Eigen::Vector3d att;
+//     att[0] = th.odom.roll;
+//     att[1] = th.odom.pitch;
+//     att[2] = yaw;
+
+//     // 姿态误差
+//     Eigen::Vector3d att_err = att_des - att;
+
+//     // P控制（足够）
+//     Eigen::Vector3d rate_des;
+//     rate_des[0] = gain.Kp_att_roll  * att_err[0];
+//     rate_des[1] = gain.Kp_att_pitch * att_err[1];
+//     rate_des[2] = gain.Kp_att_yaw   * att_err[2];
+
+//     return rate_des;
+// }
+
+// void PID_controller::inner_rate_loop(Topic_handler& th) {
+
+//     double yaw = th.odom.get_current_yaw();
+
+//     // 1. 速度环 → 期望加速度
+//     Eigen::Vector3d acc_des = velocity_loop_acc_cmd(th);
+
+//     // 2. 期望加速度 → 期望姿态
+//     Eigen::Vector3d att_des = acc_to_attitude(acc_des, yaw);
+
+//     // 3. 姿态环 → 期望角速度
+//     Eigen::Vector3d rate_des = attitude_loop_rate_cmd(th, att_des);
+
+//     // 4. 角速度误差
+//     Eigen::Vector3d rate_err = rate_des - th.odom.body_rate;
+
+//     // 5. 角速度 P 控制（可加 I）
+//     Eigen::Vector3d rate_cmd;
+//     rate_cmd[0] = gain.Kp_rate_roll  * rate_err[0];
+//     rate_cmd[1] = gain.Kp_rate_pitch * rate_err[1];
+//     rate_cmd[2] = gain.Kp_rate_yaw   * rate_err[2];
+
+//     // Thrust 单独处理
+//     double thrust_cmd = acc_des[2] + balance_thrust;
+
+//     // 6. 发布最终控制指令
+//     att_cmd_msg.type_mask = 1;   // 按角速度控制
+//     att_cmd_msg.body_rate.x = rate_cmd[0] * RAD2DEG;
+//     att_cmd_msg.body_rate.y = rate_cmd[1] * RAD2DEG;
+//     att_cmd_msg.body_rate.z = rate_cmd[2] * RAD2DEG;
+//     att_cmd_msg.thrust = limit(thrust_bound, -thrust_bound, thrust_cmd);
+// }
+
+
 // 内环姿态控制
 void PID_controller::inner_velocity_loop(Topic_handler& th){
 
@@ -123,7 +228,7 @@ void PID_controller::inner_velocity_loop(Topic_handler& th){
     double current_yaw_body = th.odom.get_current_yaw();
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
-    Eigen::Vector3d velocity_error = desire_velocity - th.odom.velocity;
+    Eigen::Vector3d velocity_error = desire_velocity - th.odom.velocity ;
 
     // yaw的控制
     double yaw_error = desire_yaw - current_yaw_body;

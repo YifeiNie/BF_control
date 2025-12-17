@@ -21,6 +21,13 @@ PID:
   Kd_vz : 0
   K_yaw : 6.0
 
+  Kp_att_roll : 0.1
+  Kp_att_pitch : 0.1
+  Kp_att_yaw : 0.05  
+  Kp_rate_roll : 0.1  
+  Kp_rate_pitch : 0.1  
+  Kp_rate_yaw : 0.05  
+
   position_x_i_bound : 1.0
   position_y_i_bound : 1.0
   position_z_i_bound : 1.0

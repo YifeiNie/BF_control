@@ -23,6 +23,17 @@ struct Gain{
     double Kp_x_single, Kp_y_single, Kp_z_single;
     double Kv_x_single, Kv_y_single, Kv_z_single;
     Eigen::Vector3d Kp_single, Kv_single;      
+
+
+    // 姿态环（角度 → 角速度）
+    double Kp_att_roll;
+    double Kp_att_pitch;
+    double Kp_att_yaw;
+
+    // 角速度环（角速度 → 力矩）
+    double Kp_rate_roll;
+    double Kp_rate_pitch;
+    double Kp_rate_yaw;
 };
 
 struct Lp3_filter {
@@ -74,4 +85,13 @@ public:
     double limit(double ub, double lb, double value);
     Eigen::Vector3d ve2vb(Eigen::Vector3d input, double yaw); // 全局坐标系到机体坐标系的转换
     Eigen::Vector3d lp3_filter(Lp3_filter lpf3, Eigen::Vector3d input);
+
+    Eigen::Vector3d velocity_loop_acc_cmd(Topic_handler& th);
+
+    Eigen::Vector3d acc_to_attitude(Eigen::Vector3d acc_des, double yaw);
+
+    Eigen::Vector3d attitude_loop_rate_cmd(Topic_handler& th, Eigen::Vector3d att_des);
+
+    void inner_rate_loop(Topic_handler& th);
+    
 };

@@ -1,8 +1,13 @@
 
 
 <launch>
+    <!-- 启动 MAVROS -->
+    <include file="$(find mavros)/launch/px4.launch" />
+    <!-- 启动 T265 相机 -->
+    <include file="$(find realsense2_camera)/launch/rs_t265.launch" />
+
+    <!-- 启动你的控制节点 -->
     <arg name="config_path" value="$(find bf_control)/config/3p5inch.yaml"/>
-    
     <node pkg="bf_control" type="bf_control" name="offboard_node" output="screen">
         <rosparam file="$(arg config_path)" command="load"/>
     </node>
