@@ -47,12 +47,12 @@ void RC::feed(mavros_msgs::RCInConstPtr msg){
     pitch = msg->channels[1];
     yaw = msg->channels[2];
     thrust = msg->channels[3];
-    if (msg->channels[4] > 1700){
+    if (msg->channels[7] > 1700){
         is_armed = 1;
     }else{
         is_armed = 0;
     }
-    if (msg->channels[7] > 1700){
+    if (msg->channels[6] > 1700){
         is_offboard = 1;
     }else{
         is_offboard = 0;
@@ -65,6 +65,9 @@ void RC::feed(mavros_msgs::RCInConstPtr msg){
 
 //传统坐标系
 void Odom::feed(nav_msgs::OdometryConstPtr msg){
+    Eigen::Matrix3d R_offset;
+    R_offset = Eigen::AngleAxisd(M_PI/2, Eigen::Vector3d::UnitZ());
+
     position(0) = msg->pose.pose.position.x;
     position(1) = msg->pose.pose.position.y;
     position(2) = msg->pose.pose.position.z;
@@ -75,6 +78,7 @@ void Odom::feed(nav_msgs::OdometryConstPtr msg){
         offset_initialized = true;
         ROS_INFO_STREAM("T265 offset initialized: " << t265_offset.transpose());
     }
+    position = R_offset * position;
 
     // 加上偏移量
     position = position + t265_offset;
@@ -83,14 +87,14 @@ void Odom::feed(nav_msgs::OdometryConstPtr msg){
     velocity(0) = msg->twist.twist.linear.x;
     velocity(1) = msg->twist.twist.linear.y;
     velocity(2) = msg->twist.twist.linear.z;
-
+    velocity = R_offset * velocity;
     
     q.w() = msg->pose.pose.orientation.w;
     q.x() = msg->pose.pose.orientation.x;
     q.y() = msg->pose.pose.orientation.y;
     q.z() = msg->pose.pose.orientation.z;
     Eigen::Quaterniond q_offset(Eigen::AngleAxisd(M_PI/2, Eigen::Vector3d::UnitZ()));
-    q = q * q_offset; 
+    q = q_offset * q; 
     rcv_stamp = ros::Time::now();
     
     // ROS_INFO("Get odom data!!!");
@@ -232,4 +236,16 @@ void Topic_handler::topic_handler_init(ros::NodeHandle& nh) {
     mav_cmd_publisher = nh.advertise<mavros_msgs::AttitudeTarget>("/mavros/setpoint_raw/attitude", 10);
     debug_flag = 1;
     odom_ned_publisher = nh.advertise<nav_msgs::Odometry>("/odom/ned", 10);
+    pos_pub = nh.advertise<geometry_msgs::Vector3>("/debug/pos", 10);
+    vel_pub = nh.advertise<geometry_msgs::Vector3>("/debug/vel", 10);
+    cmd_pub = nh.advertise<geometry_msgs::Vector3>("/debug/cmd_rate", 10);
+    imu_linear_acc_pub = nh.advertise<geometry_msgs::Vector3>("/debug/imu_linear_acc", 10);
+    imu_angle_vel = nh.advertise<geometry_msgs::Vector3>("/debug/imu_angle_vel", 10);
+
+    pos_error = nh.advertise<geometry_msgs::Vector3>("/debug/pos_error", 10);
+    vel_error = nh.advertise<geometry_msgs::Vector3>("/debug/vel_error", 10);
+    cmd_error = nh.advertise<geometry_msgs::Vector3>("/debug/cmd_error", 10);
+
+    // rc_pub = nh.advertise<std_msgs::UInt16MultiArray>("/debug/rc_out", 10);
+
 }

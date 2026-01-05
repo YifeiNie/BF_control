@@ -114,6 +114,9 @@ void PID_controller::outer_position_loop(Topic_handler& th) {
     temp_position_i_x = limit(position_x_i_bound, -position_x_i_bound, temp_position_i_x);
     temp_position_i_y = limit(position_y_i_bound, -position_y_i_bound, temp_position_i_y);
     temp_position_i_z = limit(position_z_i_bound, -position_z_i_bound, temp_position_i_z);
+    // ROS_INFO("x cmd is %f", temp_position_i_x);
+    // ROS_INFO("y cmd is %f", temp_position_i_x);
+    // ROS_INFO("thrust cmd is %f", temp_position_i_x);
 
     desire_velocity[0] = gain.Kp_x * position_error[0] + temp_position_i_x;
     desire_velocity[1] = gain.Kp_y * position_error[1] + temp_position_i_y;
@@ -219,7 +222,11 @@ void PID_controller::outer_position_loop(Topic_handler& th) {
 //     att_cmd_msg.body_rate.z = rate_cmd[2] * RAD2DEG;
 //     att_cmd_msg.thrust = limit(thrust_bound, -thrust_bound, thrust_cmd);
 // }
-
+int PID_controller::thrust_map(double thrust) {
+    // thrust: 0 ~ 1
+    thrust = std::max(0.0, std::min(1.0, thrust));
+    return 1000 + thrust * 1000;  // Betaflight 标准
+}
 
 // 内环姿态控制
 void PID_controller::inner_velocity_loop(Topic_handler& th){
@@ -227,8 +234,9 @@ void PID_controller::inner_velocity_loop(Topic_handler& th){
     // 获取当前yaw角用于将全局坐标系的线速度转换为机体坐标系的线速度
     double current_yaw_body = th.odom.get_current_yaw();
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
+    Eigen::Vector3d current_vel_body = ve2vb(th.odom.velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
-    Eigen::Vector3d velocity_error = desire_velocity - th.odom.velocity ;
+    Eigen::Vector3d velocity_error = desire_velocity - current_vel_body;
 
     // yaw的控制
     double yaw_error = desire_yaw - current_yaw_body;
@@ -250,11 +258,27 @@ void PID_controller::inner_velocity_loop(Topic_handler& th){
     temp_y_out = limit(y_bound, -y_bound, temp_y_out);
     temp_thrust_out = limit(thrust_bound, -thrust_bound, temp_thrust_out);  
 
+    // double roll_des  = -temp_y_out * RAD2DEG;   // 注意符号
+    // double pitch_des = -temp_x_out * RAD2DEG;
+    // double yaw_des   = current_yaw_body + temp_yaw_out * RAD2DEG;    // 或 current_yaw + yaw_correction
+    // Eigen::Quaterniond q_des =
+    // Eigen::AngleAxisd(yaw_des,   Eigen::Vector3d::UnitZ()) *
+    // Eigen::AngleAxisd(pitch_des, Eigen::Vector3d::UnitY()) *
+    // Eigen::AngleAxisd(roll_des,  Eigen::Vector3d::UnitX());
+
+    // att_cmd_msg.type_mask = 7;  // 忽略 body_rate，使用姿态
+
+    // att_cmd_msg.orientation.w = q_des.w();
+    // att_cmd_msg.orientation.x = q_des.x();
+    // att_cmd_msg.orientation.y = q_des.y();
+    // att_cmd_msg.orientation.z = q_des.z();
+
+    // att_cmd_msg.thrust = temp_thrust_out;
     // 设置飞控指令(body_rate的含义由att_cmd_msg.type_mask决定: 4是角度，1是角速度)
-    att_cmd_msg.type_mask = 4;
-    att_cmd_msg.body_rate.x = -temp_y_out * RAD2DEG;
-    att_cmd_msg.body_rate.y = temp_x_out * RAD2DEG;
-    //att_cmd_msg.body_rate.z = temp_yaw_out;
+    att_cmd_msg.type_mask = 7;
+    att_cmd_msg.body_rate.x = -temp_x_out;
+    att_cmd_msg.body_rate.y = -temp_y_out;
+    // att_cmd_msg.body_rate.z = temp_yaw_out;
     att_cmd_msg.thrust = temp_thrust_out;
     // if(abs(att_cmd_msg.thrust) <= 0.01){
     //     att_cmd_msg.thrust = 0;

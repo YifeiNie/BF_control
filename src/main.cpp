@@ -13,7 +13,7 @@ int main(int argc, char **argv){
     th.topic_handler_init(nh);
     fsm.pid.init(nh);
     ros::Rate rate(CTRL_FREQUENCY);
-    //ROS_INFO("offboard_node is running");
+    ROS_INFO("offboard_node is running");
     while (ros::ok()){
         rate.sleep();
         ros::spinOnce();

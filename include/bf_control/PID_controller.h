@@ -50,6 +50,8 @@ private:
     const double rho = 0.998; // do not change
     double thr2acc;
     double P;
+    double k;  // RC 映射比例
+    int thrust_map(double thrust);
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW                
     double desire_yaw;                         // 期望偏航角
@@ -93,5 +95,10 @@ public:
     Eigen::Vector3d attitude_loop_rate_cmd(Topic_handler& th, Eigen::Vector3d att_des);
 
     void inner_rate_loop(Topic_handler& th);
+
+    // int rc_roll;
+    // int rc_pitch;
+    // int rc_yaw;
+    // int rc_throttle;
     
 };
