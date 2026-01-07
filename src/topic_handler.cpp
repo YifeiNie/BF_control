@@ -47,15 +47,12 @@ void RC::feed(mavros_msgs::RCInConstPtr msg){
     pitch = msg->channels[1];
     yaw = msg->channels[2];
     thrust = msg->channels[3];
-
-    if (msg->channels[7] > 1700){
     if (msg->channels[7] > 1700){
         is_armed = 1;
     }else{
         is_armed = 0;
     }
 
-    if (msg->channels[6] > 1700){
     if (msg->channels[6] > 1700){
         is_offboard = 1;
     }else{
@@ -96,14 +93,12 @@ void Odom::feed(nav_msgs::OdometryConstPtr msg){
     velocity(1) = msg->twist.twist.linear.y;
     velocity(2) = msg->twist.twist.linear.z;
     velocity = R_offset * velocity;
-    velocity = R_offset * velocity;
     
     q.w() = msg->pose.pose.orientation.w;
     q.x() = msg->pose.pose.orientation.x;
     q.y() = msg->pose.pose.orientation.y;
     q.z() = msg->pose.pose.orientation.z;
     Eigen::Quaterniond q_offset(Eigen::AngleAxisd(M_PI/2, Eigen::Vector3d::UnitZ()));
-    q = q_offset * q; 
     q = q_offset * q; 
     rcv_stamp = ros::Time::now();
     

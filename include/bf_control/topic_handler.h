@@ -5,7 +5,6 @@
 #include <nav_msgs/Odometry.h>
 #include <Eigen/Dense>
 #include <std_msgs/UInt16MultiArray.h>
-#include <std_msgs/UInt16MultiArray.h>
 class Odom {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

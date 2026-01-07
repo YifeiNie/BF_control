@@ -27,8 +27,6 @@ void BFcontrol_FSM::run(Topic_handler &th){
                 pid.reset();
                 // ROS_INFO("2222222222222");
                 ROS_INFO("Enter manual mode!");
-                // ROS_INFO("2222222222222");
-                ROS_INFO("Enter manual mode!");
             }
             else{
                 pid.outer_position_loop(th);
