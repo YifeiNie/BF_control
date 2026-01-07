@@ -47,12 +47,14 @@ void RC::feed(mavros_msgs::RCInConstPtr msg){
     pitch = msg->channels[1];
     yaw = msg->channels[2];
     thrust = msg->channels[3];
+
     if (msg->channels[7] > 1700){
     if (msg->channels[7] > 1700){
         is_armed = 1;
     }else{
         is_armed = 0;
     }
+
     if (msg->channels[6] > 1700){
     if (msg->channels[6] > 1700){
         is_offboard = 1;
