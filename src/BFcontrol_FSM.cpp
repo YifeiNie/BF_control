@@ -15,6 +15,9 @@ void BFcontrol_FSM::run(Topic_handler &th){
                 pid.desire_position = th.odom.position;
                 pid.desire_position[2] += 0.1;
                 pid.desire_yaw = th.odom.get_current_yaw();
+                ROS_INFO("x is %f", pid.desire_position[0]);
+                ROS_INFO("y is %f", pid.desire_position[1]);
+                ROS_INFO("z is %f", pid.desire_position[2]);
                 // ROS_INFO("desire_yaw %f", pid.desire_yaw );
                 ROS_INFO("Enter offboard mode!");
                 // ROS_INFO("3333333333333333");
@@ -33,6 +36,18 @@ void BFcontrol_FSM::run(Topic_handler &th){
                 pid.inner_velocity_loop(th);
                 // pid.inner_rate_loop(th);
                 th.mav_cmd_publisher.publish(pid.att_cmd_msg);
+                pid.desire_position[0] = 0.001 * (th.rc.roll-1505);
+                pid.desire_position[1] = 0.001 * (th.rc.pitch-1505);
+                pid.desire_position[2] = 0.0002 * (th.rc.thrust-505);
+
+                double dyaw = M_PI + (th.rc.yaw - 1505.0) * 2 * M_PI / 1000.0;
+                while (dyaw >= M_PI)  dyaw -= 2 * M_PI;
+                while (dyaw < -M_PI)  dyaw += 2 * M_PI;
+                pid.desire_yaw = -dyaw;
+                // ROS_INFO("x is %f", pid.desire_position[0]);
+                // ROS_INFO("y is %f", pid.desire_position[1]);
+                // ROS_INFO("z is %f", pid.desire_position[2]);
+                // ROS_INFO("yaw is %f", pid.desire_yaw);
                 // ROS_INFO("x cmd is %f", pid.att_cmd_msg.body_rate.x);
                 // ROS_INFO("y cmd is %f", pid.att_cmd_msg.body_rate.y);
                 // ROS_INFO("thrust cmd is %f", pid.att_cmd_msg.thrust);

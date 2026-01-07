@@ -66,8 +66,6 @@ void RC::feed(mavros_msgs::RCInConstPtr msg){
 
 //传统坐标系
 void Odom::feed(nav_msgs::OdometryConstPtr msg){
-    Eigen::Matrix3d R_offset;
-    R_offset = Eigen::AngleAxisd(M_PI/2, Eigen::Vector3d::UnitZ());
 
     Eigen::Matrix3d R_offset;
     R_offset = Eigen::AngleAxisd(M_PI/2, Eigen::Vector3d::UnitZ());
@@ -83,10 +81,9 @@ void Odom::feed(nav_msgs::OdometryConstPtr msg){
         ROS_INFO_STREAM("T265 offset initialized: " << t265_offset.transpose());
     }
     position = R_offset * position;
-    position = R_offset * position;
 
-    // 加上偏移量
-    position = position + t265_offset;
+    // // 加上偏移量
+    // position = position + t265_offset;
 
 
     velocity(0) = msg->twist.twist.linear.x;
