@@ -19,7 +19,7 @@ PID:
   Kd_vx : 0
   Kd_vy : 0
   Kd_vz : 0
-  K_yaw : 6.0
+  K_yaw : 1
 
   Kp_att_roll : 0.1
   Kp_att_pitch : 0.1

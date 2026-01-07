@@ -233,6 +233,7 @@ void PID_controller::inner_velocity_loop(Topic_handler& th){
 
     // 获取当前yaw角用于将全局坐标系的线速度转换为机体坐标系的线速度
     double current_yaw_body = th.odom.get_current_yaw();
+    // ROS_INFO("current_yaw_body %f", current_yaw_body);
     desire_velocity = ve2vb(desire_velocity, current_yaw_body);
     Eigen::Vector3d current_vel_body = ve2vb(th.odom.velocity, current_yaw_body);
     // 速度误差 = 期望速度 - 当前速度
@@ -240,6 +241,18 @@ void PID_controller::inner_velocity_loop(Topic_handler& th){
 
     // yaw的控制
     double yaw_error = desire_yaw - current_yaw_body;
+    // double w = 1;
+    // if (desire_yaw * current_yaw_body < 0 ){
+    //     w = -1;
+    // }
+
+    if (yaw_error >= M_PI)
+        yaw_error -= 2 * M_PI;
+    else if (yaw_error < -1 *M_PI)
+        yaw_error += 2 * M_PI;
+
+    // ROS_INFO("yaw_error %f", yaw_error);
+    // ROS_INFO("desire_yaw %f", desire_yaw);
     velocity_error_sum += velocity_error / CTRL_FREQUENCY;
 
     double temp_velocity_i_x = gain.Ki_vx * velocity_error_sum[0];
@@ -253,6 +266,7 @@ void PID_controller::inner_velocity_loop(Topic_handler& th){
     double temp_y_out = (gain.Kp_vy * velocity_error[1] + temp_velocity_i_y);
     double temp_thrust_out = balance_thrust + gain.Kp_vz * velocity_error[2] + temp_velocity_i_z;
     double temp_yaw_out = gain.K_yaw * yaw_error;
+    // ROS_INFO("temp_yaw_out %f", temp_yaw_out);
 
     temp_x_out = limit(x_bound, -x_bound, temp_x_out);
     temp_y_out = limit(y_bound, -y_bound, temp_y_out);
@@ -278,7 +292,7 @@ void PID_controller::inner_velocity_loop(Topic_handler& th){
     att_cmd_msg.type_mask = 7;
     att_cmd_msg.body_rate.x = -temp_x_out;
     att_cmd_msg.body_rate.y = -temp_y_out;
-    // att_cmd_msg.body_rate.z = temp_yaw_out;
+    att_cmd_msg.body_rate.z = temp_yaw_out;
     att_cmd_msg.thrust = temp_thrust_out;
     // if(abs(att_cmd_msg.thrust) <= 0.01){
     //     att_cmd_msg.thrust = 0;

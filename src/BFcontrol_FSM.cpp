@@ -15,6 +15,7 @@ void BFcontrol_FSM::run(Topic_handler &th){
                 pid.desire_position = th.odom.position;
                 pid.desire_position[2] += 0.1;
                 pid.desire_yaw = th.odom.get_current_yaw();
+                // ROS_INFO("desire_yaw %f", pid.desire_yaw );
                 ROS_INFO("Enter offboard mode!");
                 // ROS_INFO("3333333333333333");
             }
@@ -24,6 +25,8 @@ void BFcontrol_FSM::run(Topic_handler &th){
             if(!th.rc.is_offboard || !(th.is_odom_received(now_time))){
                 state = MANUAL_CTRL;
                 pid.reset();
+                // ROS_INFO("2222222222222");
+                ROS_INFO("Enter manual mode!");
                 // ROS_INFO("2222222222222");
                 ROS_INFO("Enter manual mode!");
             }
@@ -77,6 +80,11 @@ void BFcontrol_FSM::run(Topic_handler &th){
                 v.y = pid.position_error_sum[1];
                 v.z = pid.position_error_sum[2];
                 th.pos_error.publish(v);
+
+                v.x = pid.yaw_error;
+                v.y = pid.desire_yaw;
+                v.z = pid.current_yaw_body;
+                th.yaw_config.publish(v);
 
                 // std_msgs::UInt16MultiArray rc_msg;
                 // rc_msg.data.resize(4);  // roll, pitch, yaw, throttle

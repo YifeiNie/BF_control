@@ -55,6 +55,8 @@ private:
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW                
     double desire_yaw;                         // 期望偏航角
+    double yaw_error; 
+    double current_yaw_body; 
     Eigen::Vector3d desire_position;           // 期望位置
     Eigen::Vector3d desire_velocity;           // 期望速度（储存外环的输出）
     Eigen::Vector3d desire_accelerate;         // 期望加速度

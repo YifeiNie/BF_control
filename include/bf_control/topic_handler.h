@@ -5,6 +5,7 @@
 #include <nav_msgs/Odometry.h>
 #include <Eigen/Dense>
 #include <std_msgs/UInt16MultiArray.h>
+#include <std_msgs/UInt16MultiArray.h>
 class Odom {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -76,7 +77,7 @@ public:
     void update_yaw_offset();
     void odom_callback(const nav_msgs::OdometryConstPtr& msg);
 
-    ros::Publisher pos_pub, vel_pub, cmd_pub, imu_linear_acc_pub, imu_angle_vel, pos_error, vel_error, cmd_error;//debug信息
+    ros::Publisher pos_pub, vel_pub, cmd_pub, imu_linear_acc_pub, imu_angle_vel, pos_error, vel_error, cmd_error, yaw_config;//debug信息
 
     ros::Publisher rc_pub;
 
