@@ -6,38 +6,32 @@ void BFcontrol_FSM::run(Topic_handler &th){
     switch (state){
         case MANUAL_CTRL:
             pid.reset();
-            // ROS_INFO("is_armed = %d", th.rc.is_armed);
-            // ROS_INFO("is_offboard = %d", th.rc.is_offboard);
-            // if(th.rc.is_offboard){
             if(th.rc.is_offboard && th.rc.is_armed && th.is_odom_received(now_time)){
                 pid.reset();
                 state = CMD_CTRL;
                 pid.desire_position = th.odom.position;
                 pid.desire_position[2] += 0.1;
                 pid.desire_yaw = th.odom.get_current_yaw();
-                ROS_INFO("x is %f", pid.desire_position[0]);
-                ROS_INFO("y is %f", pid.desire_position[1]);
-                ROS_INFO("z is %f", pid.desire_position[2]);
-                // ROS_INFO("desire_yaw %f", pid.desire_yaw );
+                ROS_INFO("target x is %f", pid.desire_position[0]);
+                ROS_INFO("target y is %f", pid.desire_position[1]);
+                ROS_INFO("target z is %f", pid.desire_position[2]);
+                ROS_INFO("target yaw %f", pid.desire_yaw);
                 ROS_INFO("Enter offboard mode!");
-                // ROS_INFO("3333333333333333");
+
             }
             break;
         case CMD_CTRL:
-            // if(!(th.rc.is_offboard)){
             if(!th.rc.is_offboard || !(th.is_odom_received(now_time))){
                 state = MANUAL_CTRL;
                 pid.reset();
-                // ROS_INFO("2222222222222");
                 ROS_INFO("Enter manual mode!");
             }
             else{
                 pid.outer_position_loop(th);
                 pid.inner_velocity_loop(th);
-                // pid.inner_rate_loop(th);
                 th.mav_cmd_publisher.publish(pid.att_cmd_msg);
-                pid.desire_position[0] = 0.001 * (th.rc.roll-1505);
-                pid.desire_position[1] = 0.001 * (th.rc.pitch-1505);
+                pid.desire_position[0] = 0.001 * (th.rc.pitch-1505);
+                pid.desire_position[1] = 0.001 * (th.rc.roll-1505);
                 pid.desire_position[2] = 0.0002 * (th.rc.thrust-505);
 
                 double dyaw = M_PI + (th.rc.yaw - 1505.0) * 2 * M_PI / 1000.0;
@@ -62,7 +56,6 @@ void BFcontrol_FSM::run(Topic_handler &th){
                 v.y = th.odom.position.y();
                 v.z = th.odom.position.z();
                 th.pos_pub.publish(v);
-                // ROS_INFO("111111111111111111");
                 v.x = th.odom.velocity.x();
                 v.y = th.odom.velocity.y();
                 v.z = th.odom.velocity.z();
@@ -70,8 +63,7 @@ void BFcontrol_FSM::run(Topic_handler &th){
 
                 v.x = pid.att_cmd_msg.body_rate.x;
                 v.y = pid.att_cmd_msg.body_rate.y;
-                v.z = pid.att_cmd_msg.body_rate.z;
-                // v.z = pid.att_cmd_msg.thrust;
+                v.z = pid.att_cmd_msg.thrust;
                 th.cmd_pub.publish(v);
 
                 v.x = th.imu.linear_acc.x();

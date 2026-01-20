@@ -19,29 +19,6 @@ bool Topic_handler::is_imu_received(const ros::Time &now_time){
     return (now_time - imu.rcv_stamp).toSec() < 0.5;
 }
 
-// void Topic_handler::update_yaw_offset() {
-//     if (!odom.yaw_offset_initialized && this->is_imu_received(ros::Time::now())) {
-        
-//         // 将 T265 yaw 转换到机体坐标系 NED
-//     double odom_yaw = odom.get_current_yaw();
-
-//     // 将 IMU yaw 转到同一参考方向
-//     double imu_yaw = imu.get_current_yaw(); // 如果需要，加符号调整
-
-//     // 偏置 = T265 初始 yaw - IMU 初始 yaw
-//     odom.yaw_offset = odom_yaw - imu_yaw;
-
-//     // 保证在 [-pi, pi] 范围
-//     if (odom.yaw_offset > M_PI) odom.yaw_offset -= 2*M_PI;
-//     if (odom.yaw_offset < -M_PI) odom.yaw_offset += 2*M_PI;
-
-//     odom.yaw_offset_initialized = true;
-//     ROS_INFO_STREAM("Initialized yaw offset: " << odom.yaw_offset * 180.0 / M_PI << " deg");
-//     }
-// }
-
-
-
 void RC::feed(mavros_msgs::RCInConstPtr msg){
     roll = msg->channels[0];
     pitch = msg->channels[1];
@@ -52,16 +29,13 @@ void RC::feed(mavros_msgs::RCInConstPtr msg){
     }else{
         is_armed = 0;
     }
-
+    // std::cout << "channel 6: " << msg->channels[6] << std::endl;
     if (msg->channels[6] > 1700){
         is_offboard = 1;
     }else{
         is_offboard = 0;
     }
     rcv_stamp = ros::Time::now();
-    // ROS_INFO("channel 7 = %d",msg->channels[7] );
-    // ROS_INFO("is_offboard = %d", is_offboard);
-    // ROS_INFO("roll = %d", roll);
 }
 
 //传统坐标系
@@ -102,51 +76,6 @@ void Odom::feed(nav_msgs::OdometryConstPtr msg){
     // ROS_INFO("Get odom data!!!");
 }
 
-//T265坐标系转换到机体坐标系下
-// void Odom::feed(nav_msgs::OdometryConstPtr msg){
-
-//     // ENU → NED (位置)
-//     position(0) =  msg->pose.pose.position.y;       // North  = ENU.y
-//     position(1) =  msg->pose.pose.position.x;       // East   = ENU.x
-//     position(2) = -msg->pose.pose.position.z;       // Down   = -Up
-
-    
-//     // 第一次接收 T265 数据时计算偏移量
-//     if (!offset_initialized) {
-//         t265_offset = desired_origin - position;
-//         offset_initialized = true;
-//         ROS_INFO_STREAM("T265 offset initialized: " << t265_offset.transpose());
-//     }
-
-//     // 加上偏移量
-//     position = position + t265_offset;
-
-
-//     // ENU → NED (速度)
-//     velocity(0) =  msg->twist.twist.linear.y;
-//     velocity(1) =  msg->twist.twist.linear.x;
-//     velocity(2) = -msg->twist.twist.linear.z;
-
-//     // quaternion ENU → NED
-//     // conversion: q_ned = R * q_enu where R = [0 1 0; 1 0 0; 0 0 -1]
-//     Eigen::Quaterniond q_enu(
-//         msg->pose.pose.orientation.w,
-//         msg->pose.pose.orientation.x,
-//         msg->pose.pose.orientation.y,
-//         msg->pose.pose.orientation.z
-//     );
-
-//     Eigen::Matrix3d R_enu_to_ned;
-//     R_enu_to_ned << 0, 1, 0,
-//                     1, 0, 0,
-//                     0, 0, -1;
-
-//     Eigen::Matrix3d Rn = R_enu_to_ned * q_enu.toRotationMatrix();
-//     q = Eigen::Quaterniond(Rn);
-
-//     rcv_stamp = ros::Time::now();
-// }
-
 //传统yaw获取方式
 double Odom::get_current_yaw() const {
     double yaw = M_PI/2 + atan2(2*(q.x()*q.y() + q.w()*q.z()), q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z());
@@ -155,16 +84,6 @@ double Odom::get_current_yaw() const {
     return yaw;
 }
 
-// //T265yaw获取方式
-// double Odom::get_current_yaw() const {
-//     // 从四元数提取yaw
-//     // NED下的四元数 q = [w, x, y, z]
-//     Eigen::Matrix3d R = q.toRotationMatrix();
-//     double yaw = std::atan2(R(1,0), R(0,0));  // NED坐标系
-//     if (yaw_offset_initialized)
-//         yaw -= yaw_offset;  
-//     return yaw;
-// }
 
 void Imu::feed(sensor_msgs::ImuConstPtr msg){
     linear_acc(0) = msg->linear_acceleration.x;
@@ -187,19 +106,6 @@ double Imu::get_current_yaw(){
     
     return yaw;
 }
-
-// //用相机矫正yaw角
-// double Imu::get_current_yaw(double t265_yaw, bool use_offset){
-//     double yaw = atan2(2*(q.x()*q.y() + q.w()*q.z()), q.w()*q.w() + q.x()*q.x() - q.y()*q.y() - q.z()*q.z());
-
-//     if(use_offset && imu_yaw_offset_initialized){
-//         yaw -= imu_yaw_offset;
-//     }
-
-//     return yaw;
-// }
-
-
 
 //检测角度
 void Topic_handler::odom_callback(const nav_msgs::OdometryConstPtr& msg)
@@ -232,7 +138,7 @@ void Topic_handler::odom_callback(const nav_msgs::OdometryConstPtr& msg)
 
 void Topic_handler::topic_handler_init(ros::NodeHandle& nh) {
     //odom_subscriber = nh.subscribe<nav_msgs::Odometry>("/vins_fusion/odometry", 100, boost::bind(&Odom::feed, &(this->odom), _1));
-    odom_subscriber = nh.subscribe<nav_msgs::Odometry>("/camera/odom/sample", 100, &Topic_handler::odom_callback, this);
+    odom_subscriber = nh.subscribe<nav_msgs::Odometry>("/imu_propagated_odom", 100, &Topic_handler::odom_callback, this);
     rc_subscriber = nh.subscribe<mavros_msgs::RCIn>("/mavros/rc/in", 10, boost::bind(&RC::feed, &(this->rc), _1));
     imu_subscriber = nh.subscribe<sensor_msgs::Imu>("/mavros/imu/data", 100, boost::bind(&Imu::feed, &(this->imu), _1));
     mav_cmd_publisher = nh.advertise<mavros_msgs::AttitudeTarget>("/mavros/setpoint_raw/attitude", 10);

@@ -24,7 +24,7 @@ int main(int argc, char **argv){
     //     th.imu.imu_yaw_offset = th.imu.get_current_yaw() - th.odom.get_current_yaw();
     //     th.imu.imu_yaw_offset_initialized = true;
 
-    //     ROS_INFO_STREAM("IMU yaw offset initialized: " << th.imu.imu_yaw_offset * 180.0 / M_PI << " deg");
+        // ROS_INFO_STREAM("IMU yaw offset initialized: " << th.imu.imu_yaw_offset * 180.0 / M_PI << " deg");
     // }
         fsm.run(th);
         // th.update_yaw_offset();
